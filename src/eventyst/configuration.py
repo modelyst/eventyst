@@ -2,7 +2,7 @@
 #   All Rights Reserved
 
 """
-Settings needed for each GCLD mircoservice to communicate with one another.
+Settings needed for each Eventyst mircoservice to communicate with one another.
 
 This includes the ports for the API and for Kafka as well as all of the
 information needed to access the database.
@@ -13,45 +13,45 @@ from textwrap import dedent
 
 from pydantic import BaseSettings, PostgresDsn, SecretStr, parse_obj_as
 
+from eventyst._enums import LogLevel
+
+# PREFIX for all environment variables
+_PACKAGE_PREFIX = "EVENTYST_"
+
 
 class PostgresqlDsn(PostgresDsn):
     """Restricts allowed schema for PostgresDsn Pydantic Model to postgresql."""
 
-    allowed_schemes = {"postgresql"}
+    allowed_schemes = {"postgresql+psycopg"}
 
 
 class Settings(BaseSettings):
     """
-    GCLD Settings Management Object that carries the global configuration for the GCLD application.
+    Eventyst Settings Management Object that carries the global configuration for the Eventyst application.
 
     Inherits from the Pydantic BaseSettings object (https://pydantic-docs.helpmanual.io/usage/settings/) to set the
     configuration from environment variables, dotenv files and defaults.
     """
 
-    # Top Level GCLDSettings
-    APPLICATION_PATH: str = "gcld.core.application:default_app"
-    MACHINE_NAME: str = "Unknown Machine"
     # Kafka Settings
     KAFKA_HOST: str = "kafka"
     KAFKA_PORT: int = 9092
-    # API Settings
-    API_PORT: int = 8000
-    API_HOST: str = "0.0.0.0"
-    API_PREFIX: str = "/api"
 
     # Local Settings
-    DATA_PATH: str = "/usr/src/gcld/src/data"
-
+    LOG_LEVEL: LogLevel = LogLevel.INFO
     # Database Credentials
-    POSTGRES_DSN: PostgresqlDsn = parse_obj_as(PostgresqlDsn, "postgresql://postgres@localhost/gcld")
+    POSTGRES_DSN: PostgresqlDsn = parse_obj_as(
+        PostgresqlDsn, "postgresql+psycopg://postgres@localhost/eventyst"
+    )
     POSTGRES_PASSWORD: SecretStr = SecretStr("")
     POSTGRES_SCHEMA: str = "public"
+    ENGINE_ECHO: bool = False
 
     class Config:
         """Pydantic Configuration."""
 
-        env_file = os.environ.get("GCLD_ENV_FILE", ".env")
-        env_prefix = "GCLD_"
+        env_file = os.environ.get("EVENTYST_ENV_FILE", ".env")
+        env_prefix = _PACKAGE_PREFIX
 
     @property
     def broker_url(self):
@@ -65,12 +65,12 @@ class Settings(BaseSettings):
             if val is not None:
                 str_val = f"{val.get_secret_value()}" if show_passwords and "PASSWORD" in key else val
                 if show_defaults or key in self.__fields_set__:
-                    params.append(f"GCLD_{key} = {str_val}")
+                    params.append(f"{_PACKAGE_PREFIX}{key} = {str_val}")
                 else:
-                    params.append(f"# GCLD_{key} = {str_val}")
+                    params.append(f"# {_PACKAGE_PREFIX}{key} = {str_val}")
 
         params_str = "\n".join(params)
-        output = f"""######################\n# GCLD Settings\n######################\n{params_str}"""
+        output = f"""######################\n# EVENTYST Settings\n######################\n{params_str}"""
         return dedent(output)
 
     def __str__(self) -> str:
@@ -78,5 +78,5 @@ class Settings(BaseSettings):
         return self.display()
 
 
-# Instantiate the global settings for use throughout GCLD
+# Instantiate the global settings for use throughout Eventyst
 settings = Settings()

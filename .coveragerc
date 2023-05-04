@@ -7,6 +7,6 @@ exclude_lines =
 omit =
     *__main__*
 [run]
-source = src/mps_client
+source = src/eventyst
 omit =
     *__main__*
