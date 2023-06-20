@@ -10,7 +10,7 @@ target-version = ['py37', 'py38', 'py39', 'py310']
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
-version = "0.1.0"
+version = "0.1.1"
 version_files = [
   "pyproject.toml:version",
   "src/eventyst/__init__.py"
@@ -21,7 +21,7 @@ authors = ["Michael Statt <michael.statt@modelyst.io>"]
 description = ""
 name = "eventyst"
 readme = "README.md"
-version = "0.1.0"
+version = "0.1.1"
 
 [tool.poetry.dependencies]
 aiokafka = "^0.8.0"

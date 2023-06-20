@@ -26,7 +26,7 @@ __author__ = "Michael Statt"
 __email__ = "michael.statt@modelyst.io"
 __maintainer__ = "Michael Statt"
 __maintainer_email__ = "michael.statt@modelyst.io"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 version_uuid = UUID(hashlib.md5(__version__.encode()).hexdigest())
