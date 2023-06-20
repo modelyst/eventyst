@@ -1,6 +1,3 @@
-#   Copyright 2022 Modelyst LLC
-#   All Rights Reserved
-
 # Copyright 2022 J.P. Morgan Chase & Co.
 # Copyright 2023 Modelyst LLC
 #
