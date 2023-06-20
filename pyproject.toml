@@ -26,6 +26,7 @@ version = "0.1.1"
 [tool.poetry.dependencies]
 aiokafka = "^0.8.0"
 avro = "^1.11.1"
+boto3 = "^1.26.156"
 fastapi = "^0.95.1"
 fastavro = "^1.7.4"
 networkx = "^3.1"
