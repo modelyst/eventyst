@@ -39,7 +39,6 @@ rich = "^13.3.5"
 sqlalchemy = "^2.0.12"
 typeguard = "^4.0.0"
 typer = "^0.9.0"
-uvicorn = "^0.22.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
