@@ -33,30 +33,28 @@ class Settings(BaseSettings):
     configuration from environment variables, dotenv files and defaults.
     """
 
+    SERVICE_NAME: str = "eventyst"
+    APPLICATION_PATH: str = 'model::app'
     # Kafka Settings
-    KAFKA_HOST: str = "kafka"
-    KAFKA_PORT: int = 9092
+    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
 
     # Local Settings
     LOG_LEVEL: LogLevel = LogLevel.INFO
     # Database Credentials
-    POSTGRES_DSN: PostgresqlDsn = parse_obj_as(
-        PostgresqlDsn, "postgresql+psycopg://postgres@localhost/eventyst"
-    )
+    POSTGRES_DSN: PostgresqlDsn = parse_obj_as(PostgresqlDsn, "postgresql+psycopg://postgres@localhost/eventyst")
     POSTGRES_PASSWORD: SecretStr = SecretStr("")
     POSTGRES_SCHEMA: str = "public"
     ENGINE_ECHO: bool = False
+    APP_STR: str = "model.main:app"
+    # AWS Settings
+    AWS_SCHEMA_REGISTRY_NAME: str = "eventyst"
+    AWS_SCHEMA_REGISTRY_REGION: str = "us-east-2"
 
     class Config:
         """Pydantic Configuration."""
 
         env_file = os.environ.get("EVENTYST_ENV_FILE", ".env")
         env_prefix = _PACKAGE_PREFIX
-
-    @property
-    def broker_url(self):
-        """Generate the URI for the Kafka cluster from the KAFKA_PORT and KAFKA_HOST settings."""
-        return f"{self.KAFKA_HOST}:{self.KAFKA_PORT}"
 
     def display(self, show_defaults: bool = False, show_passwords: bool = False):
         """Display a valid dotenv file version of the settings for human readability and logging."""

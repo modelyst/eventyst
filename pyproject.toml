@@ -3,7 +3,7 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.black]
-line-length = 110
+line-length = 120
 skip-string-normalization = true
 target-version = ['py37', 'py38', 'py39', 'py310']
 
@@ -24,9 +24,21 @@ readme = "README.md"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
+aiokafka = "^0.8.0"
+avro = "^1.11.1"
 fastapi = "^0.95.1"
-pydantic = "^1.10.4"
+fastavro = "^1.7.4"
+networkx = "^3.1"
+orjson = "^3.8.12"
+pendulum = "^2.1.2"
+poetry = "^1.4.2"
+pydantic = {version = "^1.10.7", extras = ["dotenv"]}
 python = ">=3.8.1,<3.12"
+pyvis = "^0.3.2"
+rich = "^13.3.5"
+sqlalchemy = "^2.0.12"
+typeguard = "^4.0.0"
+typer = "^0.9.0"
 uvicorn = "^0.22.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -41,6 +53,10 @@ pytest-asyncio = "^0.20.3"
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.10.0"
 pytest-sugar = "^0.9.6"
+ruff = "^0.0.265"
 
 [tool.poetry.scripts]
 eventyst = "eventyst.__main__:main"
+
+[tool.ruff]
+line-length = 120

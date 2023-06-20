@@ -1,0 +1,58 @@
+#   Copyright 2022 Modelyst LLC
+#   All Rights Reserved
+
+---
+version: '2'
+services:
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - 9092:9092
+      - 29092:29092
+      - 9101:9101
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - ../kafka/configure_run.sh:/tmp/configure_run.sh
+      - ../kafka/kafka-config/:/etc/kafka/
+    command: "bash -c 'if [ ! -f /tmp/configure_run.sh ]; then echo \"ERROR: Did you forget the configure_run.sh file that came with this docker-compose.yml file?\" && exit 1 ; else /tmp/configure_run.sh && /etc/confluent/docker/run ; fi'"
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    environment:
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_NAME: kafka_cluster
+      SERVER_SERVLET_CONTEXT_PATH: /kafka
+      kafka.clusters.0.serde.0.name: GlueSchemaRegistry
+      kafka.clusters.0.serde.0.filePath: /glue-serde/kafkaui-glue-serde-v1.0.3-jar-with-dependencies.jar
+      kafka.clusters.0.serde.0.className: com.provectus.kafka.ui.serdes.glue.GlueSerde
+      kafka.clusters.0.serde.0.properties.region: us-east-2  #required
+      kafka.clusters.0.serde.0.properties.registry: my-registry #required, name of Glue Schema Registry
+      # # template that will be used to find schema name for topic key. Optional, default is null (not set).
+      kafka.clusters.0.serde.0.properties.keySchemaNameTemplate: "%s-key"
+      # template that will be used to find schema name for topic value. Optional, default is  '%s'
+      kafka.clusters.0.serde.0.properties.valueSchemaNameTemplate: "%s-value"
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    volumes:
+      - ../kafka/plugins/:/glue-serde

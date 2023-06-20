@@ -2,10 +2,10 @@
 #   All Rights Reserved
 
 import logging
-from enum import StrEnum
+from enum import Enum
 
 
-class LogLevel(StrEnum):
+class LogLevel(str, Enum):
     DEBUG = "DEBUG"
     INFO = "INFO"
     WARNING = "WARNING"
