@@ -120,6 +120,7 @@ class Eventyst:
 
     async def _single_producer(self, events: BaseMessage, topic: str | None = None):
         self._initalize_broker()
+        assert self.broker is not None, "Broker should be initialized"
         async with self.broker:
             for event in events:
                 await self.broker.produce(event, topic)
