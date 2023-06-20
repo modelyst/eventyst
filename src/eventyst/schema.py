@@ -75,6 +75,7 @@ class AvroSchema(BaseSchema):
     def __init__(self, definition: Union[str, dict]) -> None:
         """Create a new AvroSchema."""
         definition = json.loads(definition) if isinstance(definition, str) else definition
+        self._definition = definition
         self._parsed = fastavro.parse_schema(definition)
 
     def __str__(self) -> str:

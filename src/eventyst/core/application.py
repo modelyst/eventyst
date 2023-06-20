@@ -17,7 +17,6 @@ import threading
 from typing import Any, Callable, Iterable, ParamSpec, Type, TypeVar
 
 import boto3
-from aws_schema_registry import DataAndSchema
 from fastapi import Depends, FastAPI
 
 from eventyst.adapters.aws.schema_registry import GlueSchemaRegistryClient
@@ -27,7 +26,7 @@ from eventyst.core.commands import Command
 from eventyst.core.events import BaseMessage, Event
 from eventyst.core.handler_registry import HandlerRegistry
 from eventyst.core.message_bus import MessageBus
-from eventyst.serialization.serializers import Deserializer, Serializer
+from eventyst.serialization.serializers import DataAndSchema, Deserializer, Serializer
 from eventyst.utilities.log import get_child_logger
 
 logger = get_child_logger(__name__)
