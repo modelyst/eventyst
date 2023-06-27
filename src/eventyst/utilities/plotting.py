@@ -60,10 +60,11 @@ def generate_graph(handler_registry: HandlerRegistry):
 
         if event in handler_registry.entrypoints:
             event_color = 'green'
+            G.add_edge('Broker', event_str, color='green')
         else:
             event_color = 'lightblue'
 
-        G.add_node(event_str, shape='circle', color=event_color)
+        G.add_node(event_str, shape='circle', color=event_color, size=30)
 
         # Add an edge from the event to the handler
         for tracker in trackers:
@@ -88,12 +89,12 @@ def generate_graph(handler_registry: HandlerRegistry):
                 if emitted_event in handler_registry.broker_events:
                     G.add_edge(emitted_event_str, 'Broker', color='orange')
     if handler_registry.broker_events:
-        G.add_node('Broker', shape='oval', color='orange', size=20)
+        G.add_node('Broker', shape='oval', color='orange', size=100)
 
     return G
 
 
 def draw_graph_pyvis(G):
-    net = Network(directed=True, notebook=True, cdn_resources='in_line', layout='hierarchical')
+    net = Network(directed=True, notebook=True, cdn_resources='in_line')
     net.from_nx(G)
     return net

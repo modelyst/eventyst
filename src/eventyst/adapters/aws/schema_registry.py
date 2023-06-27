@@ -169,7 +169,7 @@ class GlueSchemaRegistryClient(SchemaRegistryClient):
                 SchemaId={'SchemaName': schema_name, 'RegistryName': self.registry_name}, SchemaDefinition=definition
             )
             version_id = UUID(res['SchemaVersionId'])
-            logger.info(
+            logger.debug(
                 'Registered the schema version with schema version '
                 'id = %s and with version number = %s and status %s',
                 version_id,
@@ -226,7 +226,7 @@ class GlueSchemaRegistryClient(SchemaRegistryClient):
     ) -> UUID:
         """Create a new schema and return the version id."""
         try:
-            logger.info('Creating schema with name: %s and definition: %s', name, definition)
+            logger.debug('Creating schema with name: %s and definition: %s', name, definition)
             res = self.glue_client.create_schema(
                 SchemaName=name,
                 RegistryId={'RegistryName': self.registry_name},

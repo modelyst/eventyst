@@ -275,9 +275,9 @@ class DictAsJSONSchema(Schema):
             "logicalType": "json",
         }
 
-    def make_default(self, py_default: Any) -> str:
+    def make_default(self, py_default: Any) -> bytes:
         """Return an Avro schema compliant default value for a given Python value"""
-        return orjson.dumps(py_default).decode()
+        return orjson.dumps(py_default)
 
 
 class UUIDSchema(Schema):

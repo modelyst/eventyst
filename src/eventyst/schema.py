@@ -24,8 +24,8 @@ from uuid import UUID
 import fastavro
 import fastavro.types
 
-SchemaVersionStatus = Literal['AVAILABLE', 'DELETING', 'FAILURE', 'PENDING']
-SchemaFormat = Literal['AVRO', 'JSON']
+SchemaVersionStatus = Literal["AVAILABLE", "DELETING", "FAILURE", "PENDING"]
+SchemaFormat = Literal["AVRO", "JSON"]
 
 
 class BaseSchema(abc.ABC):
@@ -76,19 +76,22 @@ class AvroSchema(BaseSchema):
         """Create a new AvroSchema."""
         definition = json.loads(definition) if isinstance(definition, str) else definition
         self._definition = definition
-        self._parsed = fastavro.parse_schema(definition)
+        try:
+            self._parsed = fastavro.parse_schema(definition)
+        except fastavro._schema_common.SchemaParseException as e:
+            raise ValueError(f"Error parsing schema {definition}: {e}")
 
     def __str__(self) -> str:
         return self.json()
 
     @property
     def data_format(self) -> SchemaFormat:
-        return 'AVRO'
+        return "AVRO"
 
     @property
     def fully_qualified_name(self) -> str:
         # https://github.com/fastavro/fastavro/issues/415
-        return self._parsed.get('name', self._parsed['type'])
+        return self._parsed.get("name", self._parsed["type"])
 
     def read(self, bytes_: bytes, reader_schema: Optional[fastavro.types.Schema] = None) -> Any:
         b = BytesIO(bytes_)
@@ -111,7 +114,7 @@ class AvroSchema(BaseSchema):
         fastavro.validate(data, self._parsed)
 
     def json(self) -> str:
-        return json.dumps(self._parsed)
+        return json.dumps(self._parsed, indent=2)
 
     def __getitem__(self, key: str):
         return self._definition[key]

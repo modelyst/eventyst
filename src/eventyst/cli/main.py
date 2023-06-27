@@ -78,7 +78,8 @@ def run(
         app.logger.error(f"Could not connect to broker: {e}")
         raise typer.Exit(1)
     except KeyboardInterrupt:
-        app.logger.info("Shutting down...")
+        print("\r  ")
+        app.logger.info("Attempting to gracefully shutdown...")
         raise typer.Exit(0)
     except Exception as e:
         app.logger.exception(f"An error occurred when starting the application: {e}", exc_info=e)
@@ -110,15 +111,3 @@ def draw(
     net.show(str(out_pth))
     if auto_open:
         webbrowser.open(str(out_pth))
-
-
-@app.command(name="start-api")
-def start_api(
-    app_str: str = app_str_option,
-):
-    """
-    Start the api for the application
-    """
-    app_str = app_str or settings.APP_STR
-    app = validate_app_str(app_str)
-    app.start_api()

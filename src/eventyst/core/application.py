@@ -153,13 +153,16 @@ class Eventyst:
         async with broker:
             await broker.producer.start()
             consumer = await broker.get_consumer(payload_type, auto_offset_reset, group_id)
-            async for message in consumer:
-                try:
-                    value: DataAndSchema = message.value
-                    event = payload_type.parse_obj(value.data["payload"])
-                    await bus.handle(event)
-                except Exception as e:
-                    logger.error(f"An error occurred when handling message: {e}")
+            try:
+                async for message in consumer:
+                    try:
+                        value: DataAndSchema = message.value
+                        event = payload_type.parse_obj(value.data["payload"])
+                        await bus.handle(event)
+                    except Exception as e:
+                        logger.error(f"An error occurred when handling message: {e}")
+            finally:
+                await consumer.stop()
 
     async def start_multiple_consumers(
         self,

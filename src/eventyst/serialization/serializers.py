@@ -90,7 +90,7 @@ class Serializer:
     @functools.lru_cache(maxsize=None)
     def _get_schema_version(self, topic: str, schema: BaseSchema) -> SchemaVersion:
         schema_name = self.schema_naming_strategy(topic, self.is_key, schema)
-        logger.info('Fetching schema %s...', schema_name)
+        logger.debug('Fetching schema %s...', schema_name)
         return self.client.get_or_register_schema_version(
             definition=schema.json(),
             schema_name=schema_name,
