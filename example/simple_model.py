@@ -27,10 +27,10 @@ class MyTestCommand(Command):
     param_3: str | None
 
 
-@app.register(entrypoint=True, emitted_types=[MyTestEvent])
-def handle_my_test_command(command: MyTestCommand, bus: MessageBus):
-    print(f"Handling {command}")
-    bus.enqueue_sync(MyTestEvent(param_1=command.param_1))
+@app.register(entrypoint=True)
+async def handle_my_test_command(command: MyTestCommand, bus: MessageBus):
+    app.logger.info(f"Handling {command}")
+    return MyTestEvent(param_1=command.param_1)
 
 
 app.register_with_broker(MyTestEvent)

@@ -20,9 +20,11 @@ information needed to access the database.
 """
 
 import os
+from pathlib import Path
 from textwrap import dedent
+from typing import Optional
 
-from pydantic import BaseSettings, PostgresDsn, SecretStr, parse_obj_as
+from pydantic import BaseSettings, PostgresDsn
 
 from eventyst._enums import LogLevel
 
@@ -48,13 +50,10 @@ class Settings(BaseSettings):
     APPLICATION_PATH: str = 'model::app'
     # Kafka Settings
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
+    KAFKA_CONNECTION_CONFIG_FILE: Optional[Path] = None
 
     # Local Settings
     LOG_LEVEL: LogLevel = LogLevel.INFO
-    # Database Credentials
-    POSTGRES_DSN: PostgresqlDsn = parse_obj_as(PostgresqlDsn, "postgresql+psycopg://postgres@localhost/eventyst")
-    POSTGRES_PASSWORD: SecretStr = SecretStr("")
-    POSTGRES_SCHEMA: str = "public"
     ENGINE_ECHO: bool = False
     APP_STR: str = "model.main:app"
     # AWS Settings

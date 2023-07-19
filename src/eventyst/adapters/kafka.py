@@ -13,6 +13,8 @@
 #   limitations under the License.
 
 import abc
+import json
+from pathlib import Path
 from typing import AsyncIterable, Type
 
 from aiokafka import AIOKafkaClient, AIOKafkaConsumer, AIOKafkaProducer
@@ -33,10 +35,6 @@ class EventBroker(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def consume(self, topic: str):
-        pass
-
-    @abc.abstractmethod
     async def get_consumer(self, payload_type: Type[BaseMessage], topic: str):
         pass
 
@@ -51,6 +49,17 @@ class Consumer(abc.ABC, AsyncIterable):
         pass
 
 
+def load_kafka_config_file(config_file: Path | None) -> dict:
+    # Load config file if provided
+    if config_file is None:
+        return {}
+    try:
+        json_config = json.loads(config_file.read_text())
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Could not parse config file: {e}")
+    return json_config
+
+
 class KafkaEventBroker(EventBroker):
     def __init__(
         self,
@@ -58,11 +67,13 @@ class KafkaEventBroker(EventBroker):
         registry_client: SchemaRegistryClient | None = None,
         serializer: Serializer | None = None,
         deserializer: Deserializer = None,
+        config_file: Path | None = None,
     ):
         self.bootstrap_servers = bootstrap_servers
         self.registry_client = registry_client
         self.deserializer = deserializer
         self.serializer = serializer
+        self.config = load_kafka_config_file(config_file)
         self._consumers = []
 
     async def test_connection(self):
@@ -91,6 +102,7 @@ class KafkaEventBroker(EventBroker):
         # check if consumer is already started
         consumer = AIOKafkaConsumer(
             topic,
+            **self.config,
             bootstrap_servers=self.bootstrap_servers,
             auto_offset_reset=auto_offset_reset,
             group_id=group_id,
@@ -115,29 +127,11 @@ class KafkaEventBroker(EventBroker):
         except Exception as e:
             logger.error(f"An error occurred when sending event: {e}", exc_info=e)
 
-    async def consume(self, topic: str, auto_offset_reset: str = "latest", group_id: str = None):
-        self.consumer = AIOKafkaConsumer(
-            bootstrap_servers=self.bootstrap_servers,
-            value_deserializer=self.deserializer,
-            auto_offset_reset=auto_offset_reset,
-            group_id=group_id,
-        )
-        try:
-            await self.consumer.start()
-            try:
-                self.consumer.subscribe([topic])
-                async for msg in self.consumer:
-                    logger.debug(f"Consumed message: {msg.value}")
-                    yield msg
-            except KafkaError as e:
-                logger.debug(f"An error occurred when consuming message: {e}")
-            finally:
-                await self.consumer.stop()
-        except Exception as e:
-            logger.exception("An error occurred when starting the consumer", exc_info=e)
-
     async def __aenter__(self):
-        self.producer = AIOKafkaProducer(bootstrap_servers=self.bootstrap_servers)
+        self.producer = AIOKafkaProducer(
+            bootstrap_servers=self.bootstrap_servers,
+            **self.config,
+        )
         await self.producer.start()
         return self
 

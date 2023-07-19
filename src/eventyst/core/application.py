@@ -116,6 +116,7 @@ class Eventyst:
             settings.KAFKA_BOOTSTRAP_SERVERS,
             serializer=serializer,
             deserializer=deserializer,
+            config_file=settings.KAFKA_CONNECTION_CONFIG_FILE,
         )
 
     async def _single_producer(self, events: BaseMessage, topic: str | None = None):
@@ -147,6 +148,7 @@ class Eventyst:
             settings.KAFKA_BOOTSTRAP_SERVERS,
             serializer=serializer,
             deserializer=deserializer,
+            config_file=settings.KAFKA_CONNECTION_CONFIG_FILE,
         )
         bus = MessageBus(self.registry, event_broker=broker)
         asyncio.create_task(bus._entrypoint())
