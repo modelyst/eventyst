@@ -17,8 +17,10 @@ import json
 from pathlib import Path
 from typing import AsyncIterable, Type
 
+import certifi
 from aiokafka import AIOKafkaClient, AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.errors import KafkaConnectionError, KafkaError
+from aiokafka.helpers import create_ssl_context
 
 from eventyst._exceptions import BrokerConnectionError
 from eventyst.core.events import BaseMessage, Event
@@ -26,6 +28,10 @@ from eventyst.serialization.registry import SchemaRegistryClient
 from eventyst.serialization.serializers import Deserializer, Serializer
 from eventyst.utilities.log import get_child_logger
 
+cafile = certifi.where()
+context = create_ssl_context(
+    cafile=cafile,
+)
 logger = get_child_logger(__name__)
 
 
@@ -57,6 +63,8 @@ def load_kafka_config_file(config_file: Path | None) -> dict:
         json_config = json.loads(config_file.read_text())
     except json.JSONDecodeError as e:
         raise ValueError(f"Could not parse config file: {e}")
+    if json_config.get("security_protocol") == "SASL_SSL":
+        json_config["ssl_context"] = context
     return json_config
 
 
